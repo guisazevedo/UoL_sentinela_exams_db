@@ -1,7 +1,7 @@
 -- prep ENUM for exam's type
 CREATE TYPE exam_type AS ENUM ('xray', 'ecg');
 
--- Create table exam
+-- Create table exam: this is the original exam data received from hospitals
 CREATE TABLE IF NOT EXISTS exams (
     id_exam UUID PRIMARY KEY,
     id_hospital CHAR(64) NOT NULL,
@@ -13,19 +13,20 @@ CREATE TABLE IF NOT EXISTS exams (
     updated_at TIMESTAMP NOT NULL
 );
 
--- Create table exam_diagnosis
+-- Create table exam_diagnosis: this is the diagnosis made by our machine learning models
 CREATE TABLE IF NOT EXISTS exam_diagnoses (
     id_exam_diagnosis UUID PRIMARY KEY,
     id_exam CHAR(64),
     id_professional CHAR(64),
     id_hospital CHAR(64),
     link_diagnosis_data VARCHAR,
+    has_report BOOLEAN NOT NULL DEFAULT FALSE,
     FOREIGN KEY (id_exam) REFERENCES exams(id_exam),
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL
 );
 
--- Create table results
+-- Create table results: these are the results for each pathology analyzed by our models
 CREATE TABLE IF NOT EXISTS exam_results (
     id_exam_result UUID PRIMARY KEY,
     id_exam_diagnosis CHAR(64),
@@ -43,7 +44,7 @@ ALTER TABLE exam_results
 -- prep ENUM for review
 CREATE TYPE review_type AS ENUM (0, .333, .666, 1);
 
--- Create table medical_reviews
+-- Create table medical_reviews: this is the review made by medical professionals, whether they agree or not with the diagnosis made by our models
 CREATE TABLE IF NOT EXISTS medical_reviews_log (
     id_medical_review UUID PRIMARY KEY,
     id_professional CHAR(64),
@@ -53,15 +54,15 @@ CREATE TABLE IF NOT EXISTS medical_reviews_log (
     created_at TIMESTAMP NOT NULL
 );
 
--- prep ENUM for exam's type
-CREATE TYPE action_type AS ENUM ('created', 'viewed', 'edited', 'report_done');
-
--- Create table logs for exam processing
-CREATE TABLE IF NOT EXISTS exam_processing_log (
-    id_log UUID PRIMARY KEY,
-    id_exam CHAR(64),
-    id_professional CHAR(64),
-    action action_type NOT NULL,
-    FOREIGN KEY (id_exam) REFERENCES exams(id_exam),
-    created_at TIMESTAMP NOT NULL
-);
+-- -- prep ENUM for exam's type
+-- CREATE TYPE action_type AS ENUM ('result_created', 'result_edited', 'report_created');
+--
+-- -- Create table logs for exam processing
+-- CREATE TABLE IF NOT EXISTS exam_processing_log (
+--     id_log UUID PRIMARY KEY,
+--     id_exam CHAR(64),
+--     id_professional CHAR(64),
+--     action action_type NOT NULL,
+--     FOREIGN KEY (id_exam) REFERENCES exams(id_exam),
+--     created_at TIMESTAMP NOT NULL
+-- );
